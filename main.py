@@ -22,6 +22,11 @@ class Blog(db.Model):
 def index():
     return redirect('/blog')
 
+@app.route('/blog')
+def blog():
+    blogs = Blog.query.order_by(Blog.id.desc()).all()
+    return render_template('blog.html', blogs=blogs)
+
 @app.route('/blogpost')
 def blog_post():
     id = int(request.args.get('id'))
@@ -32,13 +37,14 @@ def blog_post():
 def new_post():
     if request.method == 'GET':
         return render_template('new_post.html')
+    
+    blog_title_error = ''
+    blog_body_error = ''
 
     if request.method == 'POST':
         blog_title = request.form['blog_title']
         blog_body = request.form['blog_body']
 
-        blog_title_error == ''
-        blog_body_error == ''
 
         if blog_title == "":
             blog_title_error = "You need to submit a title for your blog post, please"
@@ -47,7 +53,7 @@ def new_post():
             blog_body_error = "You need to submit content for your blog post, please"
 
         if blog_body_error or blog_title_error:
-            return render_template('new_post.html', blog_title=blog_title, blog_body=blog_body)
+            return render_template('new_post.html', blog_title=blog_title, blog_body=blog_body, blog_title_error=blog_title_error, blog_body_error=blog_body_error)
         
         else:
             blog = Blog(blog_title, blog_body)
