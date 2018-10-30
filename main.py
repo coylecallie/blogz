@@ -71,45 +71,50 @@ def login():
         username = request.form['username']
         password = request.form['password']
         user = User.query.filter_by(username=username).first()
+        if len(username) == 0:
+            flash("ENTER USERNAME")
+            return redirect('/login')
+        if len(password) == 0:
+            flash("ENTER PASSWORD")
+            return redirect('/login')
         if user and user.password == password:
             session['username'] = username
-            flash("LOGGED IN WOOO!!!!!")
+            flash("LOGGED IN WOOO!!!!")
             return redirect('/newpost')
         else:
-            flash("PASSWORD IS WRONG OR USER DOES NOT EXIST YET","error") 
+            flash("ENTER A USERNAME, PASSOWORD INCORRECT, OR USER DOES NOT EXIST!!!!","error") 
     return render_template('login.html')
 
 
-@app.route('/signup', methods=['GET','POST'])
+@app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST': 
-        username = request.form['username'] 
-       
-        if len(username) < 3 or len(username) > 20 or ' ' in username:
-            flash("WRONG, USERNMANE MUST BE BETWEEN 3 AND 20 CHARACTERS WITH NO SPACES!!!", "error")
-            return redirect('/signup')
-
+        username = request.form['username']
         password = request.form['password'] 
         verify = request.form['verify']
+        existing_user = User.query.filter_by(username=username).first()
+       
+        if len(username) < 3 or len(username) > 20 or ' ' in username:
+            flash("USERNAME MUST BE BETWEEN 3 AND 20 CHARACTERS LONG, NO SPACES", "error")
+            return redirect('/signup')
 
         if len(password) < 3 or len(password) > 20 or ' ' in password:
-            flash("WRONG, PASSWORD MUST BE BETWEEN 3 AND 20 CHARACTERS WITH NO SPACES!!!", "error")
+            flash("PASSWORD MUST BE BETWEEN 3 AND 20 CHARACTERS LONG, NO SPACES", "error")
             return redirect ('/signup')
 
         if verify != password or len(verify) == 0:
-            flash("PASSWORDS DO NOT MATCH< TRY AGAIN!!!", "error")
+            flash("PASSWORDS NEED TO MATCH DUDE", "error")
             return redirect ('/signup')
 
-        existing_user = User.query.filter_by(username=username).first()
         if not existing_user:
             new_user = User(username, password)
             db.session.add(new_user)
             db.session.commit()
             session['username'] = username
-            flash("GOOD JOB< YOU REGISTERED")
+            flash("YOU REGISTERED!!!!!")
             return redirect('/newpost')
         else:
-            flash('USER EXISTS ALREADY DUDE', 'error')    
+            flash('USER EXISTS, NOT COOL', 'error')    
     return render_template('signup.html')
 
 
